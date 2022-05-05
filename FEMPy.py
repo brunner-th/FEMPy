@@ -45,19 +45,19 @@ def Integrand_2(var,j):
 
 
 A = 0 # first boundary x-pos
-B = 1 # second boundary x-pos
+B = 10 # second boundary x-pos
 L = B-A
 vertex_number = 10
 
 
 leftBC = "dirichlet" #neumann or dirichlet
-rightBC = "dirichlet"
+rightBC = "neumann"
 
 a1 = 1 # value of left bc
 a2 = 0 # value of right bc
 
-k = 0
-b = 2
+k = -0.4
+b = -1
 
 Domain = [A, B]
 
@@ -130,42 +130,55 @@ else:
     
 sol = np.linalg.solve(mat_sum, b_vec)
 
-plt.grid()
+#plt.grid()
+plt.xticks(np.linspace(0,10,11))
+plt.title("Finite element solution")
 plt.xlabel("distance $x$",fontsize = 12)
 plt.ylabel("potential $\phi$",fontsize = 12)
 plt.plot(x,sol, color = "firebrick", linestyle = "-", label = "Finite Element solution")
-plt.legend()
+#plt.legend()
 
 # analytical solution in DBC and NBC file
 
 
+def drawBasisFunction(ind_list, col="k", solution = True):
+    
+    if len(ind_list) == 3:
+        ind1 = ind_list[0]
+        ind2 = ind_list[1]
+        ind3 = ind_list[2]
+        first_x_interval = np.linspace(x[ind1], x[ind2], 20)
+        second_x_interval = np.linspace(x[ind2], x[ind3], 20)
+    
+        if solution == True:
+            first_y_interval = np.linspace(0,sol[ind2],20)
+            second_y_interval = np.linspace(sol[ind2],0,20)
+        else:
+            first_y_interval = np.linspace(0,1,20)
+            second_y_interval = np.linspace(1,0,20)
+    
+        x_int = np.concatenate((first_x_interval, second_x_interval))
+        y_int = np.concatenate((first_y_interval, second_y_interval))
+        plt.plot(x_int, y_int, linestyle = "--", color = col)
+        
+    elif len(ind_list) == 2:
+        ind1 = ind_list[0]
+        ind2 = ind_list[1]
+        x_interval = np.linspace(x[ind1], x[ind2], 20)
+        
+        if solution == True:
+            y_interval = np.linspace(0,sol[ind2],20)
+        else:
+            y_interval = np.linspace(0,1,20)
+  
+        plt.plot(x_interval, y_interval, linestyle = "--", color = col)
+        
 
-def drawBasisFunction(ind1,ind2,ind3, col="k", solution = True):
+drawBasisFunction([1, 0])
+drawBasisFunction([len(sol)-2, len(sol)-1])
+for i in range(1,len(sol)-1):
+    drawBasisFunction([i-1, i, i+1], solution=1)
     
-    first_x_interval = np.linspace(x[ind1], x[ind2], 20)
-    second_x_interval = np.linspace(x[ind2], x[ind3], 20)
-    
-   
-    
-    if solution == True:
-        first_y_interval = np.linspace(0,sol[ind2],20)
-        second_y_interval = np.linspace(sol[ind2],0,20)
-    else:
-        first_y_interval = np.linspace(0,1,20)
-        second_y_interval = np.linspace(1,0,20)
-    
-    x_int = np.concatenate((first_x_interval, second_x_interval))
-    y_int = np.concatenate((first_y_interval, second_y_interval))
-    
-    plt.plot(x_int, y_int, linestyle = "--", color = col)
-
-
-drawBasisFunction(1, 0, 1)
-drawBasisFunction(len(sol)-3, len(sol)-2, len(sol)-1)
-
-for i in range(1,len(sol)-2):
-    drawBasisFunction(i-1, i, i+1, solution=1)
-    #print(" ")
 
 
 
