@@ -31,11 +31,11 @@ plt.rc('font', family='serif')
 
 
 A = 0                           # first boundary x-pos
-B = 10                          # second boundary x-pos
+B = 1                         # second boundary x-pos
 
-vertex_number = 6             # number of vertices
+vertex_number = 6            # number of vertices
 
-plot_hat_function = False       # plot with individual basis functions
+plot_hat_function = True       # plot with individual basis functions
 constant_coeff = False          # use const coeff or coeff functions
 
 leftBC = "dirichlet"            # determine type of BC:
@@ -44,8 +44,8 @@ rightBC = "neumann"             # neumann or dirichlet
 a1 = 1                          # value of left bc
 a2 = 0                          # value of right bc
 
-a = -0.5                        # parameter a if constant coeff is true
-b = -0.2                        # parameter b if constant coeff is true
+a = 0.1                        # parameter a if constant coeff is true
+b = -10                       # parameter b if constant coeff is true
 
 
 #############################   functions   ###################################
@@ -58,11 +58,11 @@ def inhom_function(x):          # inhomogeneous function (RHS)
     return f
 
 def a_func(x):                  # function a(x) if constant coeff is false
-    f = -0.2
+    f = 0.1
     return f
 
 def b_func(x):                  # function b(x) if constant coeff is false
-    f = -0.5
+    f = -10
     return f
 
 ################################   code   #####################################
@@ -127,7 +127,7 @@ def AssembleSystem(const_coeff = False):
         for j in range(n):
             
             if j == 0 and leftBC == "neumann":
-                print("left NBC")
+                
                 A_mat[j,j+1] = -1/(x[j+1]-x[j])
                 A_mat[j,j] = 1/(x[j+1]-x[j])
                 
@@ -136,10 +136,10 @@ def AssembleSystem(const_coeff = False):
                 
                 C_mat[j,j] = integrate.quad(lambda var: a_func(var)*d_phi_i(var,j)*phi_i(var,j), x[j], x[j+1])[0]
                 C_mat[j,j+1] = -integrate.quad(lambda var: a_func(var)*d_phi_i(var,j)*phi_i(var,j+1), x[j], x[j+1])[0]
-                # - sign is needed, no idea why
+                # - sign is needed, not quite sure why yet
             
             elif j == n-1 and rightBC == "neumann":
-                print("right NBC")
+                
                 A_mat[j,j-1] = -1/(x[j]-x[j-1])
                 A_mat[j,j] = 1/(x[j]-x[j-1])
                 
@@ -164,25 +164,29 @@ def AssembleSystem(const_coeff = False):
                 
                 C_mat[j,j+1] = integrate.quad(lambda var: a_func(var)*d_phi_i(var,j+1)*phi_i(var,j), x[j], x[j+1])[0]
                 C_mat[j,j-1] = integrate.quad(lambda var: a_func(var)*d_phi_i(var,j-1)*phi_i(var,j), x[j-1], x[j])[0]
-
+                
+                Integral_1 = integrate.quad(lambda var: Integrand_1(var,j), x[j-1], x[j])[0]
+                Integral_2 = integrate.quad(lambda var: Integrand_2(var,j), x[j], x[j+1])[0]
+                b_vec[j] = Integral_1+Integral_2
+                
         mat_sum = -A_mat+B_mat+C_mat
 
     else:
         
-        for j in range(n):
+        for j in range(n): 
             
             if j == 0 and leftBC == "neumann":
-                print("left NBC")
+                
                 A_mat[j,j+1] = -1/(x[j+1]-x[j])
                 B_mat[j,j+1] = (x[j+1]-x[j])/6
-                C_mat[j,j+1] = 1/2 #fehler??
+                C_mat[j,j+1] = 1/2 #error if - sign, will check calculations
                 
                 A_mat[j,j] = 1/(x[j+1]-x[j])
                 B_mat[j,j] = (x[j+1]-x[j])/3
                 C_mat[j,j] = -1/2
             
             elif j == n-1 and rightBC == "neumann":
-                print("right NBC")
+                
                 A_mat[j,j-1] = -1/(x[j]-x[j-1])
                 B_mat[j,j-1] = (x[j]-x[j-1])/6
                 C_mat[j,j-1] = -1/2
@@ -203,24 +207,22 @@ def AssembleSystem(const_coeff = False):
                 B_mat[j,j-1] = (x[j]-x[j-1])/6 
                 A_mat[j,j-1] = -1/(x[j]-x[j-1])
                 C_mat[j,j-1] = -1/2
-            
+                
+                Integral_1 = integrate.quad(lambda var: Integrand_1(var,j), x[j-1], x[j])[0]
+                Integral_2 = integrate.quad(lambda var: Integrand_2(var,j), x[j], x[j+1])[0]
+                b_vec[j] = Integral_1+Integral_2
+                
+                
         mat_sum = -A_mat+b*B_mat+a*C_mat
    
     return mat_sum
 
 
-if constant_coeff == True:
+if constant_coeff is True:
     mat_sum = AssembleSystem(const_coeff=True)
 else:
     mat_sum = AssembleSystem()
 
-
-
-for j in range(1,n-1):
-    Integral_1 = integrate.quad(lambda var: Integrand_1(var,j), x[j-1], x[j])[0]
-    Integral_2 = integrate.quad(lambda var: Integrand_2(var,j), x[j], x[j+1])[0]
-    b_vec[j] = Integral_1+Integral_2
-    
 
 if leftBC == "dirichlet":
     mat_sum[0,0] = 1
@@ -239,12 +241,12 @@ sol = np.linalg.solve(mat_sum, b_vec)
 
 
 #plt.grid()
-plt.xticks(np.linspace(0,10,11))
+plt.xticks(np.linspace(0,B,11))
 plt.title("Finite element solution")
 plt.xlabel("$x$",fontsize = 12)
 plt.ylabel("solution $u$",fontsize = 12)
 plt.plot(x,sol, color = "firebrick", linestyle = "-", label = "Finite Element solution")
-#plt.legend()
+
 
 
 
