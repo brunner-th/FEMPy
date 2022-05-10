@@ -9,10 +9,8 @@
 #-----------------------------------------------------------------
 
 from math import *
-from scipy.spatial import Delaunay
 import matplotlib.pyplot as plt
 import numpy as np
-from meshpy.tet import MeshInfo, build
 from mpl_toolkits.mplot3d import Axes3D
 import scipy.integrate as integrate
 import functools as functools
@@ -28,24 +26,48 @@ plt.rcParams.update({
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 
-##############################################################################
 
-A = 0 # first boundary x-pos
-B = 10 # second boundary x-pos
+#############################   parameters   ##################################
+
+
+A = 0                           # first boundary x-pos
+B = 10                          # second boundary x-pos
+
+vertex_number = 6             # number of vertices
+
+plot_hat_function = False       # plot with individual basis functions
+constant_coeff = False          # use const coeff or coeff functions
+
+leftBC = "dirichlet"            # determine type of BC:
+rightBC = "neumann"             # neumann or dirichlet
+
+a1 = 1                          # value of left bc
+a2 = 0                          # value of right bc
+
+a = -0.5                        # parameter a if constant coeff is true
+b = -0.2                        # parameter b if constant coeff is true
+
+
+#############################   functions   ###################################
+
+
+def inhom_function(x):          # inhomogeneous function (RHS)
+    f = 0
+    #if  0.51 > x > 0.49:
+    #    f = -50
+    return f
+
+def a_func(x):                  # function a(x) if constant coeff is false
+    f = -0.2
+    return f
+
+def b_func(x):                  # function b(x) if constant coeff is false
+    f = -0.5
+    return f
+
+################################   code   #####################################
+
 L = B-A
-vertex_number = 600
-
-plot_hat_function = False
-
-leftBC = "dirichlet" #neumann or dirichlet
-rightBC = "neumann"
-
-a1 = 1 # value of left bc
-a2 = 0 # value of right bc
-
-a = -0.5
-b = -0.2
-
 Domain = [A, B]
 
 x = np.linspace(Domain[0],Domain[1],vertex_number)
@@ -56,22 +78,6 @@ A_mat = np.zeros((len(x),len(x)))
 B_mat = np.zeros((len(x),len(x)))
 C_mat = np.zeros((len(x),len(x)))
 b_vec = np.zeros(len(x))
-
-
-def inhom_function(x):
-    f = 0
-    #if  0.51 > x > 0.49:
-    #    f = -50
-    return f
-
-def a_func(x):
-    f = -0.2
-    return f
-
-def b_func(x):
-    f = -0.5
-    return f
-
 
 def Integrand_1(var,j):
     val = inhom_function(var)
@@ -161,9 +167,6 @@ def AssembleSystem(const_coeff = False):
 
         mat_sum = -A_mat+B_mat+C_mat
 
-        
-        
-
     else:
         
         for j in range(n):
@@ -201,18 +204,17 @@ def AssembleSystem(const_coeff = False):
                 A_mat[j,j-1] = -1/(x[j]-x[j-1])
                 C_mat[j,j-1] = -1/2
             
-
-        
-        
         mat_sum = -A_mat+b*B_mat+a*C_mat
-    
-        
-        
+   
     return mat_sum
-        
 
-mat_sum = AssembleSystem()
-#mat_sum = AssembleSystem(const_coeff=True)
+
+if constant_coeff == True:
+    mat_sum = AssembleSystem(const_coeff=True)
+else:
+    mat_sum = AssembleSystem()
+
+
 
 for j in range(1,n-1):
     Integral_1 = integrate.quad(lambda var: Integrand_1(var,j), x[j-1], x[j])[0]
@@ -233,40 +235,17 @@ else:
     b_vec[n-1] -= a2
     
     
-    
-# time dependent:
-    
 sol = np.linalg.solve(mat_sum, b_vec)
-
-#for t in range(timesteps):
-#    old_sol = sol
-#    if leftBC == "Dirichlet":
-#        old_sol[0] = a1
-#    else:
- #       old_sol[0] = sol[0]
- #       old_sol[1] = sol[1]
-        
- #   if rightBC == "Dirichlet":
-  #      old_sol[n] = a1
-  #  else:
-  #      old_sol[n-1] = sol[n-1]
-  #      old_sol[n] = sol[n]
- 
-   #     old_sol[n]
-
-
-
 
 
 #plt.grid()
 plt.xticks(np.linspace(0,10,11))
 plt.title("Finite element solution")
-plt.xlabel("distance $x$",fontsize = 12)
+plt.xlabel("$x$",fontsize = 12)
 plt.ylabel("solution $u$",fontsize = 12)
 plt.plot(x,sol, color = "firebrick", linestyle = "-", label = "Finite Element solution")
 #plt.legend()
 
-# analytical solution in DBC and NBC file
 
 
 def drawBasisFunction(ind_list, col="k", solution = True):
