@@ -31,38 +31,52 @@ plt.rc('font', family='serif')
 
 
 A = 0                           # first boundary x-pos
-B = 1                         # second boundary x-pos
+B = 250                        # second boundary x-pos
 
-vertex_number = 6            # number of vertices
+vertex_number = 40    # number of vertices
 
-plot_hat_function = True       # plot with individual basis functions
-constant_coeff = False          # use const coeff or coeff functions
+
+plot_hat_function = False       # plot with individual basis functions
+constant_coeff = False      # use const coeff or coeff functions
+plot_analytical_sol = False  # plot analytical solution
+plot_legend = True
+
 
 leftBC = "dirichlet"            # determine type of BC:
-rightBC = "neumann"             # neumann or dirichlet
+rightBC = "dirichlet"             # neumann or dirichlet
 
-a1 = 1                          # value of left bc
+a1 = 5                          # value of left bc
 a2 = 0                          # value of right bc
 
-a = 0.1                        # parameter a if constant coeff is true
-b = -10                       # parameter b if constant coeff is true
+a = 0                        # parameter a if constant coeff is true
+b = 0                   # parameter b if constant coeff is true
 
 
 #############################   functions   ###################################
 
 
 def inhom_function(x):          # inhomogeneous function (RHS)
+    #f = -10**-9/(8.85*10**-6)
+    
     f = 0
-    #if  0.51 > x > 0.49:
-    #    f = -50
+    if  100 > x > 0:
+        f = +6*10**-9/(8.85*10**-6)
+    elif 250 > x > 150:
+        f = -3*10**-9/(8.85*10**-6)
     return f
 
 def a_func(x):                  # function a(x) if constant coeff is false
-    f = 0.1
+    f = 0
     return f
 
 def b_func(x):                  # function b(x) if constant coeff is false
-    f = -10
+    f = 0
+    return f
+
+def exact_solution_function(x):
+    
+    f = -0.0000564972*x**2 - 0.00587571*x + 5
+    
     return f
 
 ################################   code   #####################################
@@ -118,7 +132,15 @@ def d_phi_i(pos,i):
             f = (-1)/(x[i+1]-x[i])
     return f
 
-
+def plot_exact_sol(ex_func=exact_solution_function):
+    
+    y_an = np.zeros_like(x_an)
+    for i, x_val in enumerate(x_an):
+        y_an[i] = exact_solution_function(x_val)
+    
+    plt.plot(x_an,y_an, color = "skyblue", linestyle ="-.",label = "Analytical solution")
+    
+    return
 
 
 def AssembleSystem(const_coeff = False):
@@ -236,18 +258,18 @@ if rightBC == "dirichlet":
 else:
     b_vec[n-1] -= a2
     
-    
+
 sol = np.linalg.solve(mat_sum, b_vec)
 
+if plot_analytical_sol is True:
+    plot_exact_sol()
 
-#plt.grid()
+#plt.grid(color='gainsboro')
 plt.xticks(np.linspace(0,B,11))
-plt.title("Finite element solution")
+plt.title("n = "+str(vertex_number))
 plt.xlabel("$x$",fontsize = 12)
-plt.ylabel("solution $u$",fontsize = 12)
-plt.plot(x,sol, color = "firebrick", linestyle = "-", label = "Finite Element solution")
-
-
+plt.ylabel("solution",fontsize = 12)
+plt.plot(x,sol, color = "firebrick", linestyle = "-", label = "FE solution")
 
 
 def drawBasisFunction(ind_list, col="k", solution = True):
@@ -291,4 +313,5 @@ if plot_hat_function == True:
     
 
 
-
+if plot_legend is True:
+    plt.legend()
