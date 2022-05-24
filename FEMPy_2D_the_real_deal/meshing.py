@@ -52,9 +52,6 @@ def createTriangulation(N_area, N_boundary,  CornerPoints=True):
 
 
 
-def round_trip_connect(start, end):
-    return [(i, i + 1) for i in range(start, end)] + [(end, start)]
-
 
 def TriangleMesh(point_list, max_vol = 1e-3):
 
@@ -124,9 +121,15 @@ def HeatSinkMesh(max_vol = 1):
 #######################################################################
 
 
-def UnitSquareMesh(max_vol = 1):
-    x_list = np.array([0,0,1,1])
-    y_list = np.array([0,1,1,0])
+def UnitSquareMesh(max_vol = 0.01):
+    
+    edge_array_rise = np.linspace(0,1,2)
+    edge_array_const = np.zeros_like(edge_array_rise)
+    
+    x_list = np.concatenate((edge_array_const,edge_array_rise, (edge_array_const+1),np.flip(edge_array_rise)))
+    y_list = np.concatenate((edge_array_rise, (edge_array_const+1),np.flip(edge_array_rise), edge_array_const))
+    #x_list = np.array([0,0,1,1])
+    #y_list = np.array([0,1,1,0])
     
     point_list = np.stack((x_list,y_list), axis = 1)
     
@@ -156,5 +159,5 @@ def UnitSquareMesh(max_vol = 1):
     return mesh_points, mesh_tris, facets
 
 
-TriangleMesh([[0,10],[-10,10],[-10,-10],[10,-10], [10,0]],max_vol= 5)
+#TriangleMesh([[0,10],[-10,10],[-10,-10],[10,-10], [10,0]],max_vol= 5)
 UnitSquareMesh(max_vol = 0.01)

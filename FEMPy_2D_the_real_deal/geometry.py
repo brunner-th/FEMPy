@@ -16,7 +16,7 @@ from meshpy.tet import MeshInfo, build
 from mpl_toolkits.mplot3d import Axes3D
 
 
-def BoundaryPointsInCircle(Radius, x, y, point_list, index_list, OnlyBoundaryPoints = True):
+def BoundaryPointsInCircle(Radius, x, y, point_list, index_list):
     
     IndexOfPointsInCircle = []
     for line in index_list:
@@ -31,7 +31,7 @@ def BoundaryPointsInCircle(Radius, x, y, point_list, index_list, OnlyBoundaryPoi
 def BoundaryPointsInRectangle( x1,x2,y1,y2, point_list,index_list = [], OnlyBoundaryPoints = True):
     
     IndexOfPointsInRectangle = []
-    if OnlyBoundaryPoints == True:
+    if OnlyBoundaryPoints is True:
         for line in index_list:
             index = line[0]
             point = point_list[index]
@@ -50,7 +50,7 @@ def BoundaryPointsInRectangle( x1,x2,y1,y2, point_list,index_list = [], OnlyBoun
 def BoundaryPointsOutsideRectangle(x1,x2,y1,y2,point_list,index_list = [], OnlyBoundaryPoints = True):
     
     IndexOfPointsOutsideRectangle = []
-    if OnlyBoundaryPoints == True:
+    if OnlyBoundaryPoints is True:
         for line in index_list:
             index = line[0]
             point = point_list[index]
