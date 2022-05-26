@@ -54,23 +54,23 @@ def createTriangulation(N_area, N_boundary,  CornerPoints=True):
 
 
 
-def TriangleMesh(point_list, max_vol = 1e-3):
-
+def TriangleMesh(point_list, max_vol = 1e-3, radius = 3):
+    
     def round_trip_connect(start, end):
         result = []
         for i in range(start, end):
             result.append((i, i + 1))
         result.append((end, start))
         return result
-
+    
     points = point_list
     facets = round_trip_connect(0, len(points) - 1)
     circ_start = len(points)
     points.extend(
-        (3 * np.cos(angle), 3 * np.sin(angle))
+        (radius * np.cos(angle), radius * np.sin(angle))
         for angle in np.linspace(0, 2 * np.pi, 30, endpoint=False)
         )
-
+    
     facets.extend(round_trip_connect(circ_start, len(points) - 1))
     info = triangle.MeshInfo()
     info.set_points(points)
@@ -104,6 +104,8 @@ def HeatSinkMesh(max_vol = 1):
     points = point_list
     facets = round_trip_connect(0, len(points) - 1)
     
+    
+    
     info = triangle.MeshInfo()
     info.set_points(points)
     info.set_facets(facets)
@@ -120,6 +122,11 @@ def HeatSinkMesh(max_vol = 1):
 
 
 #######################################################################
+
+#def SnakeDomain():
+#    edge_array_rise = np.linspace(0,0.2,30)
+#    x_list = np.concatenate(np.zeros((30)),np.array(0.2,0.2,0.8,0.8,1),np.zeros((30)).fill(1), np.array(0.6,0.6,0.4,0.4))
+#    y_list = np.concatenate(
 
 
 def UnitSquareMesh(max_vol = 0.01, edge_num = 2):
@@ -145,9 +152,36 @@ def UnitSquareMesh(max_vol = 0.01, edge_num = 2):
     points = point_list
     facets = round_trip_connect(0, len(points) - 1)
     
+    ###############
+    #radius = 0.1
+    #circ_start = len(points)
+    
+    
+    #print(len(facets))
+    
+    #x_ext = 0.5+float(radius) * np.cos(np.linspace(0, 2 * np.pi, 30, endpoint=False))
+    #y_ext = 0.5+float(radius) * np.sin(np.linspace(0, 2 * np.pi, 30, endpoint=False))
+     
+    #points_extension = np.stack((x_ext, y_ext), axis = 1)
+    #print(np.shape(points_extension))
+    #points = np.concatenate((points, points_extension), axis = 0)
+    
+    #facets.extend(round_trip_connect(circ_start, len(points) - 1))
+    
+    #print(len(facets))
+    ######################
+    
     info = triangle.MeshInfo()
+    
+    
     info.set_points(points)
     info.set_facets(facets)
+    
+    ########
+    
+    #info.set_holes([(0.5, 0.5)])
+    
+    ########
     
     mesh = triangle.build(info, max_volume=max_vol, min_angle=30)
 
@@ -169,7 +203,7 @@ def MeshToCSV(path, points, elements, facets):
     print(len(elements))
     for ind, element in enumerate(elements):
         
-        print(ind)
+        
         if ind < len(facets):
             point = points[ind]
             row = [point[0], point[1], elements[ind][0],elements[ind][1],elements[ind][2], facets[ind][0],facets[ind][1]]
@@ -226,14 +260,14 @@ def CSVToMesh(path):
 
 
 
-
 #TriangleMesh([[0,10],[-10,10],[-10,-10],[10,-10], [10,0]],max_vol= 5)
+#Test = TriangleMesh([[10,10],[-10,10],[-10,-10],[10,-10]],max_vol= 0.5)
 
-#Test = UnitSquareMesh(max_vol = 0.001,edge_num=50)
+Test = UnitSquareMesh(max_vol = 0.001,edge_num=50)
 
-path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/Mesh.csv"
+path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/SnakeDomain.csv"
 
-#MeshToCSV(path, Test[0], Test[1], Test[2])
+MeshToCSV(path, Test[0], Test[1], Test[2])
 #Mesh = CSVToMesh(path)
 
 #print(len(Mesh[2]))
