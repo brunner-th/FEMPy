@@ -14,6 +14,7 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 import scipy.integrate as integrate
 import functools as functools
+import time
 
 plt.rcParams['figure.figsize'] = [5.0, 3.0]
 plt.rcParams['figure.dpi'] = 200
@@ -27,13 +28,14 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 
 
+
 #############################   parameters   ##################################
 
 
 A = 0                           # first boundary x-pos
 B = 250                        # second boundary x-pos
 
-vertex_number = 40    # number of vertices
+vertex_number = 20    # number of vertices
 
 
 plot_hat_function = False       # plot with individual basis functions
@@ -260,6 +262,7 @@ else:
     
 
 sol = np.linalg.solve(mat_sum, b_vec)
+
 
 if plot_analytical_sol is True:
     plot_exact_sol()
