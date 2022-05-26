@@ -15,6 +15,7 @@ import numpy as np
 from meshpy.tet import MeshInfo, build
 from mpl_toolkits.mplot3d import Axes3D
 import meshpy.triangle as triangle
+import csv
 
 plt.rcParams["figure.dpi"] = 300
 #plt.rcParams["figure.figsize"] = (8.3*1.5, 11.7*1.5)
@@ -121,9 +122,9 @@ def HeatSinkMesh(max_vol = 1):
 #######################################################################
 
 
-def UnitSquareMesh(max_vol = 0.01):
+def UnitSquareMesh(max_vol = 0.01, edge_num = 2):
     
-    edge_array_rise = np.linspace(0,1,2)
+    edge_array_rise = np.linspace(0,1,edge_num)
     edge_array_const = np.zeros_like(edge_array_rise)
     
     x_list = np.concatenate((edge_array_const,edge_array_rise, (edge_array_const+1),np.flip(edge_array_rise)))
@@ -159,5 +160,80 @@ def UnitSquareMesh(max_vol = 0.01):
     return mesh_points, mesh_tris, facets
 
 
+def MeshToCSV(path, points, elements, facets):
+    
+    f = open(path, 'w')
+    writer = csv.writer(f)
+    print(len(facets))
+    print(len(points))
+    print(len(elements))
+    for ind, element in enumerate(elements):
+        
+        print(ind)
+        if ind < len(facets):
+            point = points[ind]
+            row = [point[0], point[1], elements[ind][0],elements[ind][1],elements[ind][2], facets[ind][0],facets[ind][1]]
+        elif ind < len(points):
+            point = points[ind]
+            row = [point[0], point[1], elements[ind][0],elements[ind][1],elements[ind][2], "x","x"]
+        else:
+            row = ["x", "x", elements[ind][0],elements[ind][1],elements[ind][2], "x","x"]
+            
+        writer.writerow(row)
+    f.close()
+
+
+def CSVToMesh(path):
+    
+    with open(path, 'r') as infile:
+       
+        #lines einlesen
+        lines = infile.readlines()
+        infile.close()
+        
+        #Werte Listen erstellen
+        points = []
+        elements = []
+        facets = []
+        
+        
+        for line in lines:
+            
+            words = line.split(',')
+            
+            words[-1] = str(words[-1]).rstrip()
+            try:
+                if words[0] == "x" and words[-1]=="x":
+                    elements.append([int(str(words[2])),int((str(words[3]))),int((str(words[4])))])
+                elif words[0] == "x":
+                    elements.append([int(str(words[2])),int((str(words[3]))),int((str(words[4])))])
+                    facets.append([float(str(words[5])),float((str(words[6])))])
+                elif words[-1] == "x":
+                    elements.append([int(str(words[2])),int((str(words[3]))),int((str(words[4])))])
+                    points.append([float(str(words[0])),float((str(words[1])))])
+                else:  
+                    points.append([float(str(words[0])),float((str(words[1])))])
+                    elements.append([int(str(words[2])),int((str(words[3]))),int((str(words[4])))])
+                    facets.append([int(str(words[5])),int((str(words[6])))])
+            except: pass #print("empty line")
+                
+                
+    points = np.array(points)
+    elements = np.array(elements)
+    facets = np.array(facets)
+    
+    return points, elements, facets
+
+
+
+
 #TriangleMesh([[0,10],[-10,10],[-10,-10],[10,-10], [10,0]],max_vol= 5)
-UnitSquareMesh(max_vol = 0.01)
+
+#Test = UnitSquareMesh(max_vol = 0.001,edge_num=50)
+
+path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/Mesh.csv"
+
+#MeshToCSV(path, Test[0], Test[1], Test[2])
+#Mesh = CSVToMesh(path)
+
+#print(len(Mesh[2]))
