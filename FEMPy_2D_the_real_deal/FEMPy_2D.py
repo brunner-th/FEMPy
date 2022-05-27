@@ -19,13 +19,17 @@ from meshing import UnitSquareMesh, CSVToMesh
 from geometry import *
 from equation_functions import *
 import matplotlib.tri as mtri
+import scipy.interpolate as ip 
+
+plt.rcParams["figure.dpi"] = 300
+plt.rcParams["figure.figsize"] = (10, 7)
 
 ############################## mesh generation / import #######################
 
 
 #p_unitsquare = UnitSquareMesh(0.01)
 
-mesh_path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/DomainWithHole.csv"
+mesh_path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/TestUnitSquare.csv" #BoingAirfoil
 
 p_unitsquare = CSVToMesh(mesh_path)
 
@@ -35,7 +39,7 @@ points = p_unitsquare[0]
 simplices = p_unitsquare[1]
 hull = p_unitsquare[2]
 
-
+print(len(hull))
 
 ############################## geometry handling ##############################
 
@@ -51,16 +55,18 @@ FullBoundary = BoundaryPointsOutsideRectangle(0.01, 0.99, 0.01, 0.99, points)
 
 # domain with hole:
     
-Inlet = BoundaryPointsInRectangle(-1,0.001,-2,2, points, index_list=hull, OnlyBoundaryPoints=True)
-Outlet = BoundaryPointsInRectangle(0.99,1.1,-2,2, points, index_list=hull, OnlyBoundaryPoints=True)
+Inlet = BoundaryFacetsInRectangle(-1,0.01,-2,2, points, hull)
+Outlet = BoundaryFacetsInRectangle(0.99,1.1,-2,2, points, hull)
 
 ############################## parameters #####################################
 #print(hull)
 
-Inlet = Inlet[:-1]
+#Inlet = Inlet[:-1]
 
-print(Inlet)
 print(Outlet)
+
+#print(Inlet)
+#print(Outlet)
 
 k1_list = np.zeros((len(points)))
 k2_list = np.zeros((len(points)))
@@ -75,8 +81,11 @@ k2_list.fill(1)
 #f_list[78] = 10000
 #f_list = np.linspace(0,100,len(points))
 gamma_list.fill(1)
-for point in Outlet:
-    gamma_list[point]=-1
+for facet in Outlet:
+    p1 = facet[0]
+    p2 = facet[1]
+    gamma_list[p1]=-1
+    gamma_list[p2]=-1
     
  
 rho_list.fill(0)
@@ -140,19 +149,21 @@ def EquationAssembler(points, simplices, hull, k1_list, k2_list, rho_list, f_lis
         Master_b[element[2]] += B_vec[2]
     
     
-    def CauchyBC(Hull_Index):
-        Equation_2 = determine_CauchyBC(points[hull[Hull_Index][0]],points[hull[Hull_Index][1]],a_list[Hull_Index], gamma_list[Hull_Index])
+    def CauchyBC(facet):
+        a_mean = (a_list[facet[0]]+a_list[facet[1]])/2
+        gamma_mean = (gamma_list[facet[0]]+gamma_list[facet[1]])/2
+        Equation_2 = determine_CauchyBC(points[facet[0]],points[facet[1]],a_mean, gamma_mean)
         return Equation_2
     
-
-    for i in Cauchy_points:
-        Equation2 = CauchyBC(i)
-        Master_Matrix[hull[i][0],hull[i][0]] += Equation2[0][0,0]
-        Master_Matrix[hull[i][0],hull[i][1]] += Equation2[0][0,1]
-        Master_Matrix[hull[i][1],hull[i][0]] += Equation2[0][1,0]
-        Master_Matrix[hull[i][1],hull[i][1]] += Equation2[0][1,1]        
-        Master_b[hull[i][0]] += Equation2[1][0]
-        Master_b[hull[i][1]] += Equation2[1][1]
+    
+    for facet in Cauchy_points:
+        Equation2 = CauchyBC(facet)
+        Master_Matrix[facet[0],facet[0]] += Equation2[0][0,0]
+        Master_Matrix[facet[0],facet[1]] += Equation2[0][0,1]
+        Master_Matrix[facet[1],facet[0]] += Equation2[0][1,0]
+        Master_Matrix[facet[1],facet[1]] += Equation2[0][1,1]        
+        Master_b[facet[0]] += Equation2[1][0]
+        Master_b[facet[1]] += Equation2[1][1]
     
     
     def DOF_Killer(Index, Value): 
@@ -197,10 +208,42 @@ def EquationAssembler(points, simplices, hull, k1_list, k2_list, rho_list, f_lis
     z = sol
     
     fig, ax = plt.subplots(subplot_kw =dict(projection="3d"))
+    
     ax.plot_trisurf(triang, z, cmap = "magma")
+    
     ax.view_init(30, -50)
     plt.show()
+    
+    return points, sol, triangles
+
+Sol = EquationAssembler(points,simplices,hull, k1_list, k2_list, rho_list,f_list,a_list,gamma_list,Dirichlet_conditions,Cauchy_points)
 
 
-EquationAssembler(points,simplices,hull, k1_list, k2_list, rho_list,f_list,a_list,gamma_list,Dirichlet_conditions,Cauchy_points)
+
+def plot_streamline(points, values, simplices, grid_dim=1000):
+    
+    x = np.linspace(np.min(points[:,0]), np.max(points[:,0]), grid_dim)
+    y = np.linspace(np.min(points[:,1]), np.max(points[:,1]), grid_dim)
+
+    
+    grid_x, grid_y = np.meshgrid(x,y)
+    
+    grid_ip = ip.griddata(points, values, (grid_x, grid_y), method='linear')
+    
+    u_x = (grid_ip[0:-2,:]-grid_ip[1:-1,:])/grid_dim
+    u_x = np.concatenate((u_x, u_x[-3:-1,:]),axis = 0) #np.zeros((2,grid_dim))
+    
+    u_y = (grid_ip[:,0:-2]-grid_ip[:,1:-1])/grid_dim
+    u_y = np.concatenate((u_y, u_y[:,-3:-1]),axis = 1) #np.zeros((grid_dim,2))
+    
+    plt.tricontourf(points[:,0], points[:,1], simplices, values, 12, cmap="viridis")
+    plt.streamplot(y, x, u_y, u_x, color = "k", linewidth = 1, density = 1)
+    #circle1 = plt.Circle((0.5, 0.5), 0.1, color='w',zorder=2)
+    
+    #plt.gca().add_patch(circle1)
+
+
+
+#plot_streamline(Sol[0],Sol[1], Sol[2])
+
 

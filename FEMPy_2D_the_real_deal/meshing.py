@@ -131,13 +131,13 @@ def HeatSinkMesh(max_vol = 1):
 
 def UnitSquareMesh(max_vol = 0.01, edge_num = 2):
     
-    edge_array_rise = np.linspace(0,1,edge_num)
-    edge_array_const = np.zeros_like(edge_array_rise)
+    #edge_array_rise = np.linspace(0,1,edge_num)
+    #edge_array_const = np.zeros_like(edge_array_rise)
     
-    x_list = np.concatenate((edge_array_const,edge_array_rise, (edge_array_const+1),np.flip(edge_array_rise)))
-    y_list = np.concatenate((edge_array_rise, (edge_array_const+1),np.flip(edge_array_rise), edge_array_const))
-    #x_list = np.array([0,0,1,1])
-    #y_list = np.array([0,1,1,0])
+    #x_list = np.concatenate((edge_array_const,edge_array_rise, (edge_array_const+1),np.flip(edge_array_rise)))
+    #y_list = np.concatenate((edge_array_rise, (edge_array_const+1),np.flip(edge_array_rise), edge_array_const))
+    x_list = np.array([0,0,1,1])
+    y_list = np.array([0,1,1,0])
     
     point_list = np.stack((x_list,y_list), axis = 1)
     
@@ -151,6 +151,26 @@ def UnitSquareMesh(max_vol = 0.01, edge_num = 2):
 
     points = point_list
     facets = round_trip_connect(0, len(points) - 1)
+    
+    #qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
+    
+    #circ_start = len(points)
+    
+    #data = np.genfromtxt('BoingPatentAirfoil.dat',
+    #                 skip_header=3,
+    #                 skip_footer=1,
+    #                 dtype=None,
+    #                 delimiter=',')
+    #print(data)
+    #x_aero = 0.5*data[:,0]+0.3
+    
+    #y_aero = 0.8*data[:,1]+0.5
+    #points_extension = np.stack((x_aero,y_aero),axis = 1)
+    #print(points_extension[64:,:])
+    #points_extension[64:,:] = np.flip(points_extension[64:,:], axis=0)
+    #points = np.concatenate((points, points_extension), axis = 0)
+    #facets.extend(round_trip_connect(circ_start, len(points) - 1))
+    #qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
     
     ###############
     #radius = 0.1
@@ -180,6 +200,8 @@ def UnitSquareMesh(max_vol = 0.01, edge_num = 2):
     ########
     
     #info.set_holes([(0.5, 0.5)])
+    
+    #info.set_holes([(0.5, 0.52),(0.5,0.49)])
     
     ########
     
@@ -263,7 +285,7 @@ def CSVToMesh(path):
 #TriangleMesh([[0,10],[-10,10],[-10,-10],[10,-10], [10,0]],max_vol= 5)
 #Test = TriangleMesh([[10,10],[-10,10],[-10,-10],[10,-10]],max_vol= 0.5)
 
-Test = UnitSquareMesh(max_vol = 0.001,edge_num=50)
+Test = UnitSquareMesh(max_vol = 0.1,edge_num=50)
 
 path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/SnakeDomain.csv"
 
