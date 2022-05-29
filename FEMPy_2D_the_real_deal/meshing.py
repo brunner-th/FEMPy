@@ -129,7 +129,7 @@ def HeatSinkMesh(max_vol = 1):
 #    y_list = np.concatenate(
 
 
-def UnitSquareMesh(max_vol = 0.01, edge_num = 2):
+def UnitSquareMesh(max_vol = 0.1, edge_num = 2):
     
     #edge_array_rise = np.linspace(0,1,edge_num)
     #edge_array_const = np.zeros_like(edge_array_rise)
@@ -209,20 +209,20 @@ def UnitSquareMesh(max_vol = 0.01, edge_num = 2):
 
     mesh_points = np.array(mesh.points)
     mesh_tris = np.array(mesh.elements)
-    
+    facets_processed = np.array(mesh.facets)
     plt.triplot(mesh_points[:, 0], mesh_points[:, 1], mesh_tris, linewidth = 1)
     plt.show()
     
-    return mesh_points, mesh_tris, facets
+    return mesh_points, mesh_tris, facets_processed
 
 
 def MeshToCSV(path, points, elements, facets):
     
     f = open(path, 'w')
     writer = csv.writer(f)
-    print(len(facets))
-    print(len(points))
-    print(len(elements))
+    #print(len(facets))
+    #print(len(points))
+    #print(len(elements))
     for ind, element in enumerate(elements):
         
         
@@ -285,9 +285,9 @@ def CSVToMesh(path):
 #TriangleMesh([[0,10],[-10,10],[-10,-10],[10,-10], [10,0]],max_vol= 5)
 #Test = TriangleMesh([[10,10],[-10,10],[-10,-10],[10,-10]],max_vol= 0.5)
 
-Test = UnitSquareMesh(max_vol = 0.1,edge_num=50)
+Test = UnitSquareMesh(max_vol = 0.0001,edge_num=50)
 
-path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/SnakeDomain.csv"
+path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/Mesh.csv"
 
 MeshToCSV(path, Test[0], Test[1], Test[2])
 #Mesh = CSVToMesh(path)
