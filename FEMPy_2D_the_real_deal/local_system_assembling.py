@@ -24,7 +24,8 @@ def determine_M_mat(p_i,p_j,p_k, k1, k2, rho):
     
     d_pq = (p_j[0]-p_i[0])*(p_k[1]-p_i[1])-(p_k[0]-p_i[0])*(p_j[1]-p_i[1])
     alpha = (k1*(p_k[1]-p_i[1])**2+k2*(p_k[0]-p_i[0])**2)/d_pq
-    beta = -(k1*(p_k[1]-p_i[1])*(p_j[1]-p_i[1])+k2*(p_k[0]-p_i[0])*(p_j[0]-p_i[0]))/d_pq
+    beta = -(k1*(p_k[1]-p_i[1])*(p_j[1]-p_i[1])+k2*(p_k[0]-p_i[0])*(p_j[0]-p_i[0]))
+    beta = beta/d_pq
     gamma = (k1*(p_j[1]-p_i[1])**2+k2*(p_j[0]-p_i[0])**2)/d_pq
     M1 = np.zeros((3,3))
     M1[0,0] = alpha+2*beta+gamma
@@ -45,6 +46,7 @@ def determine_M_mat(p_i,p_j,p_k, k1, k2, rho):
     M_mat = np.add(M1,M2)
     
     return M_mat
+
 
 def determine_B_vec(p_i,p_j,p_k, f):
     

@@ -136,6 +136,9 @@ def UnitSquareMesh(max_vol = 0.1, edge_num = 2):
     
     #x_list = np.concatenate((edge_array_const,edge_array_rise, (edge_array_const+1),np.flip(edge_array_rise)))
     #y_list = np.concatenate((edge_array_rise, (edge_array_const+1),np.flip(edge_array_rise), edge_array_const))
+    
+    #x_list = [0,0.4,0.4,0.6,0.6,1,1,0.8,0.8,0.2,0.2,0]
+    #y_list = [0,0,0.3,0.3,0,0,0.2,0.2,0.5,0.5,0.2,0.2]
     x_list = np.array([0,0,1,1])
     y_list = np.array([0,1,1,0])
     
@@ -192,8 +195,7 @@ def UnitSquareMesh(max_vol = 0.1, edge_num = 2):
     ######################
     
     info = triangle.MeshInfo()
-    
-    
+
     info.set_points(points)
     info.set_facets(facets)
     
@@ -285,11 +287,11 @@ def CSVToMesh(path):
 #TriangleMesh([[0,10],[-10,10],[-10,-10],[10,-10], [10,0]],max_vol= 5)
 #Test = TriangleMesh([[10,10],[-10,10],[-10,-10],[10,-10]],max_vol= 0.5)
 
-Test = UnitSquareMesh(max_vol = 0.0001,edge_num=50)
+#Test = UnitSquareMesh(max_vol = 0.001,edge_num=50)
 
 path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/Mesh.csv"
 
-MeshToCSV(path, Test[0], Test[1], Test[2])
+#MeshToCSV(path, Test[0], Test[1], Test[2])
 #Mesh = CSVToMesh(path)
 
 #print(len(Mesh[2]))
