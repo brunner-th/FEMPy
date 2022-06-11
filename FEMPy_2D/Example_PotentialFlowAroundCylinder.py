@@ -25,7 +25,9 @@ plt.rcParams["figure.figsize"] = (10, 7)
 
 ############################## mesh generation / import #######################
 
-mesh_path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/DomainWithHoleFine.csv"
+mesh_path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/DomainWithHoleFine.csv" 
+
+#also try Mesh_files/AirfoilFine to see the Flow around an airfoil
 
 p_unitsquare = CSVToMesh(mesh_path)
 
