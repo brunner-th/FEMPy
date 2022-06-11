@@ -16,11 +16,13 @@ from meshpy.tet import MeshInfo, build
 from mpl_toolkits.mplot3d import Axes3D
 
 
-def BoundaryPointsDistance(point_p, point_q):
+def BoundaryPointsDistance(point_p, point_q): # calc distance between two points
     return sqrt((point_p[0]-point_q[0])**2+(point_p[1]-point_q[1])**2)
 
 
-def determine_M_mat(p_i,p_j,p_k, k1, k2, rho):
+def determine_M_mat(p_i,p_j,p_k, k1, k2, rho): # calculate local M mat entries
+
+    # just carries out the equations that can be found in the documentation
     
     d_pq = (p_j[0]-p_i[0])*(p_k[1]-p_i[1])-(p_k[0]-p_i[0])*(p_j[1]-p_i[1])
     alpha = (k1*(p_k[1]-p_i[1])**2+k2*(p_k[0]-p_i[0])**2)/d_pq
@@ -48,7 +50,9 @@ def determine_M_mat(p_i,p_j,p_k, k1, k2, rho):
     return M_mat
 
 
-def determine_B_vec(p_i,p_j,p_k, f):
+def determine_B_vec(p_i,p_j,p_k, f): # calculate local B vec entries
+    
+    # just carries out the equations that can be found in the documentation
     
     d_pq = (p_j[0]-p_i[0])*(p_k[1]-p_i[1])-(p_k[0]-p_i[0])*(p_j[1]-p_i[1])
     B_vec = np.zeros(3)
@@ -58,6 +62,9 @@ def determine_B_vec(p_i,p_j,p_k, f):
 
 
 def determine_CauchyBC(point_p,point_q,a, gamma): 
+    
+    # calculate M mat and B vec for the Cauchy boundary integrals
+    # just carries out the equations that can be found in the documentation
     
     d_pq = BoundaryPointsDistance(point_p, point_q)
     M_BC = np.zeros((2,2))

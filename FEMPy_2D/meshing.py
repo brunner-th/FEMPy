@@ -20,41 +20,14 @@ import csv
 plt.rcParams["figure.dpi"] = 300
 #plt.rcParams["figure.figsize"] = (8.3*1.5, 11.7*1.5)
 
-def createTriangulation(N_area, N_boundary,  CornerPoints=True):
-
-    N_boundary_per_side = int(N_boundary/4)
-    points_bottom = np.concatenate((np.random.rand(N_boundary_per_side, 1), np.zeros((N_boundary_per_side, 1))), axis = 1)
-    points_left = np.concatenate((np.zeros((N_boundary_per_side, 1)),np.random.rand(N_boundary_per_side, 1)), axis = 1)
-    points_top = np.concatenate((np.random.rand(N_boundary_per_side, 1), np.full((N_boundary_per_side, 1),1)), axis = 1)
-    points_right = np.concatenate((np.full((N_boundary_per_side, 1),1),np.random.rand(N_boundary_per_side, 1)), axis = 1)
-    random_points_area = np.random.rand(N_area,2)
-    points = np.concatenate((random_points_area,points_left,points_top,points_right,points_bottom)) # + boundary points
-    
-    if CornerPoints==True:
-        cornerPoints = np.array([[0,0],[1,1],[0,1],[1,0]])
-        points = np.concatenate((points, cornerPoints), axis = 0)
-            
-    triangulation = Delaunay(points)
-    hull = triangulation.convex_hull
-    simplices = triangulation.simplices
-    points = triangulation.points
-    
-    plt.triplot(points[:,0], points[:,1], triangulation.simplices)
-    #print(triangulation.simplices)
-    plt.show()
-    
-    return points, simplices, hull
-
 
 
 ##############################################################################
 
 
-
-
-
-
 def TriangleMesh(point_list, max_vol = 1e-3, radius = 3):
+    
+    # creates mesh with hole in the domain using MeshPy.triangle from a point list
     
     def round_trip_connect(start, end):
         result = []
@@ -86,50 +59,16 @@ def TriangleMesh(point_list, max_vol = 1e-3, radius = 3):
     
     return mesh_points, mesh_tris, facets
     
-
-
-def HeatSinkMesh(max_vol = 1):
-    
-    x_list = np.array([-5,-5,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,6,6])
-    y_list = np.array([0,1,1,10,10,2,2,10,10,2,2,10,10,2,2,10,10,2,2,10,10,1,1,0])
-    point_list = np.stack((x_list,y_list), axis = 1)
-
-    def round_trip_connect(start, end):
-        result = []
-        for i in range(start, end):
-            result.append((i, i + 1))
-        result.append((end, start))
-        return result
-    
-    points = point_list
-    facets = round_trip_connect(0, len(points) - 1)
-    
-    
-    
-    info = triangle.MeshInfo()
-    info.set_points(points)
-    info.set_facets(facets)
-    
-    mesh = triangle.build(info, max_volume=max_vol, min_angle=25)
-    mesh_points = np.array(mesh.points)
-    mesh_tris = np.array(mesh.elements)
-    
-    #print(mesh_tris)
-    #plt.triplot(mesh_points[:, 0], mesh_points[:, 1], mesh_tris)
-    plt.show()
-    
-    return mesh_points, mesh_tris, facets
-
-
-#######################################################################
-
-#def SnakeDomain():
-#    edge_array_rise = np.linspace(0,0.2,30)
-#    x_list = np.concatenate(np.zeros((30)),np.array(0.2,0.2,0.8,0.8,1),np.zeros((30)).fill(1), np.array(0.6,0.6,0.4,0.4))
-#    y_list = np.concatenate(
+###############################################################################
 
 
 def UnitSquareMesh(max_vol = 0.1, edge_num = 2):
+    
+    # this function was used as a testing ground to create all of the availible
+    # mesh files in the /mesh_files directory
+    
+    x_list = np.array([0,0,1,1])
+    y_list = np.array([0,1,1,0])
     
     #edge_array_rise = np.linspace(0,1,edge_num)
     #edge_array_const = np.zeros_like(edge_array_rise)
@@ -139,11 +78,8 @@ def UnitSquareMesh(max_vol = 0.1, edge_num = 2):
     
     #x_list = [0,0.4,0.4,0.6,0.6,1,1,0.8,0.8,0.2,0.2,0]
     #y_list = [0,0,0.3,0.3,0,0,0.2,0.2,0.5,0.5,0.2,0.2]
-    x_list = np.array([0,0,1,1])
-    y_list = np.array([0,1,1,0])
     
     point_list = np.stack((x_list,y_list), axis = 1)
-    
     
     def round_trip_connect(start, end):
         result = []
@@ -173,6 +109,7 @@ def UnitSquareMesh(max_vol = 0.1, edge_num = 2):
     #points_extension[64:,:] = np.flip(points_extension[64:,:], axis=0)
     #points = np.concatenate((points, points_extension), axis = 0)
     #facets.extend(round_trip_connect(circ_start, len(points) - 1))
+    
     #qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
     
     ###############
@@ -218,7 +155,10 @@ def UnitSquareMesh(max_vol = 0.1, edge_num = 2):
     return mesh_points, mesh_tris, facets_processed
 
 
-def MeshToCSV(path, points, elements, facets):
+###############################################################################
+
+
+def MeshToCSV(path, points, elements, facets): # converts mesh data to CSV
     
     f = open(path, 'w')
     writer = csv.writer(f)
@@ -241,7 +181,7 @@ def MeshToCSV(path, points, elements, facets):
     f.close()
 
 
-def CSVToMesh(path):
+def CSVToMesh(path): # converts CSV files to mesh data
     
     with open(path, 'r') as infile:
        
@@ -281,6 +221,37 @@ def CSVToMesh(path):
     facets = np.array(facets)
     
     return points, elements, facets
+
+###############################################################################
+
+def createTriangulation(N_area, N_boundary,  CornerPoints=True):
+    
+    # meshes using the SciPy Delaunay implementation, not recommended
+
+    N_boundary_per_side = int(N_boundary/4)
+    points_bottom = np.concatenate((np.random.rand(N_boundary_per_side, 1), np.zeros((N_boundary_per_side, 1))), axis = 1)
+    points_left = np.concatenate((np.zeros((N_boundary_per_side, 1)),np.random.rand(N_boundary_per_side, 1)), axis = 1)
+    points_top = np.concatenate((np.random.rand(N_boundary_per_side, 1), np.full((N_boundary_per_side, 1),1)), axis = 1)
+    points_right = np.concatenate((np.full((N_boundary_per_side, 1),1),np.random.rand(N_boundary_per_side, 1)), axis = 1)
+    random_points_area = np.random.rand(N_area,2)
+    points = np.concatenate((random_points_area,points_left,points_top,points_right,points_bottom)) # + boundary points
+    
+    if CornerPoints==True:
+        cornerPoints = np.array([[0,0],[1,1],[0,1],[1,0]])
+        points = np.concatenate((points, cornerPoints), axis = 0)
+            
+    triangulation = Delaunay(points)
+    hull = triangulation.convex_hull
+    simplices = triangulation.simplices
+    points = triangulation.points
+    
+    plt.triplot(points[:,0], points[:,1], triangulation.simplices)
+    #print(triangulation.simplices)
+    plt.show()
+    
+    return points, simplices, hull
+
+
 
 
 
