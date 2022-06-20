@@ -67,8 +67,12 @@ def UnitSquareMesh(max_vol = 0.1, edge_num = 2):
     # this function was used as a testing ground to create all of the availible
     # mesh files in the /mesh_files directory
     
-    x_list = np.array([0,0,1,1])
-    y_list = np.array([0,1,1,0])
+    #x_list = np.array([0,0,1,1])
+    #y_list = np.array([0,1,1,0])
+    
+    x_list = np.array([-5,-5,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,6,6])
+    y_list = np.array([0,1,1,10,10,2,2,10,10,2,2,10,10,2,2,10,10,2,2,10,10,1,1,0])
+    
     
     #edge_array_rise = np.linspace(0,1,edge_num)
     #edge_array_const = np.zeros_like(edge_array_rise)
@@ -258,7 +262,7 @@ def createTriangulation(N_area, N_boundary,  CornerPoints=True):
 #TriangleMesh([[0,10],[-10,10],[-10,-10],[10,-10], [10,0]],max_vol= 5)
 #Test = TriangleMesh([[10,10],[-10,10],[-10,-10],[10,-10]],max_vol= 0.5)
 
-#Test = UnitSquareMesh(max_vol = 0.001,edge_num=50)
+#Test = UnitSquareMesh(max_vol = 0.1,edge_num=50)
 
 path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/Mesh.csv"
 
