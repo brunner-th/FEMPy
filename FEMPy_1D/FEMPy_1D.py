@@ -35,7 +35,7 @@ plt.rc('font', family='serif')
 A = 0                           # first boundary x-pos
 B = 250                        # second boundary x-pos
 
-vertex_number = 20    # number of vertices
+vertex_number = 50    # number of vertices
 
 
 plot_hat_function = False       # plot with individual basis functions
@@ -47,17 +47,17 @@ plot_legend = True
 leftBC = "dirichlet"            # determine type of BC:
 rightBC = "dirichlet"             # neumann or dirichlet
 
-a1 = 5                          # value of left bc
+a1 = 5                        # value of left bc
 a2 = 0                          # value of right bc
 
 a = 0                        # parameter a if constant coeff is true
 b = 0                   # parameter b if constant coeff is true
-
+f_rhs = 3               # parameter f if constant coeff is true
 
 #############################   functions   ###################################
 
 
-def inhom_function(x):          # inhomogeneous function (RHS)
+def f_func(x):          # inhomogeneous function (RHS)
     #f = -10**-9/(8.85*10**-6)
     
     f = 0
@@ -65,6 +65,7 @@ def inhom_function(x):          # inhomogeneous function (RHS)
         f = +6*10**-9/(8.85*10**-6)
     elif 250 > x > 150:
         f = -3*10**-9/(8.85*10**-6)
+    
     return f
 
 def a_func(x):                  # function a(x) if constant coeff is false
@@ -96,11 +97,11 @@ C_mat = np.zeros((len(x),len(x)))
 b_vec = np.zeros(len(x))
 
 def Integrand_1(var,j):
-    val = inhom_function(var)
+    val = f_func(var)
     return (var-x[j-1])/(x[j]-x[j-1])*val
 
 def Integrand_2(var,j):
-    val = inhom_function(var)
+    val = f_func(var)
     return (x[j+1]-var)/(x[j+1]-x[j])*val
 
 
@@ -232,9 +233,10 @@ def AssembleSystem(const_coeff = False):
                 A_mat[j,j-1] = -1/(x[j]-x[j-1])
                 C_mat[j,j-1] = -1/2
                 
-                Integral_1 = integrate.quad(lambda var: Integrand_1(var,j), x[j-1], x[j])[0]
-                Integral_2 = integrate.quad(lambda var: Integrand_2(var,j), x[j], x[j+1])[0]
-                b_vec[j] = Integral_1+Integral_2
+                #Integral_1 = integrate.quad(lambda var: Integrand_1(var,j), x[j-1], x[j])[0]
+                #Integral_2 = integrate.quad(lambda var: Integrand_2(var,j), x[j], x[j+1])[0]
+                #b_vec[j] = Integral_1+Integral_2
+                b_vec[j] = f_rhs*(x[j+1]-x[j-1])/2
                 
                 
         mat_sum = -A_mat+b*B_mat+a*C_mat
