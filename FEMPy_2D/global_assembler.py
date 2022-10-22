@@ -109,7 +109,7 @@ def EquationAssembler(points, simplices, hull, k1_list, k2_list, rho_list,
     return points, sol, simplices
 
 
-def plot_streamline(points, values, simplices, grid_dim=1000): 
+def plot_streamline(points, values, simplices, grid_dim=1000, option = "none", bernoulli = False): 
     
     #create streamline/field line plot by calculating the gradient numerically
     
@@ -126,12 +126,23 @@ def plot_streamline(points, values, simplices, grid_dim=1000):
     u_y = np.concatenate((u_y, u_y[:,-3:-1]),axis = 1) #np.zeros((grid_dim,2))
     
     plt.tricontourf(points[:,0], points[:,1], simplices, values, 12, cmap="viridis")
+    
     plt.streamplot(y, x, u_y, u_x, color = "k", linewidth = 1, density = 1)
+    plt.show()
+    
+    if bernoulli == True:
+    
+        bernoulli_pressure = -1/2*(u_x**2+u_y**2)
+        plt.streamplot(y, x, u_y, u_x, color = "k", linewidth = 1, density = 1)
+        plt.contourf(x, y,  bernoulli_pressure, 12, cmap="magma")
+    
     
     circle1 = plt.Circle((0.5, 0.5), 0.1, color='w',zorder=2)
     cap1 = plt.Rectangle((0.3, 0.3), 0.05, 0.4, color='firebrick',zorder=2)
     cap2 = plt.Rectangle((0.65, 0.3), 0.05,0.4, color='cornflowerblue',zorder=2)
     
-    #plt.gca().add_patch(circle1)
-    #plt.gca().add_patch(cap1)
-    #plt.gca().add_patch(cap2)
+    if option == "cap":
+        plt.gca().add_patch(cap1)
+        plt.gca().add_patch(cap2)
+    elif option == "circle":
+        plt.gca().add_patch(circle1)

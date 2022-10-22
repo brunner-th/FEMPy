@@ -27,7 +27,8 @@ plt.rcParams["figure.figsize"] = (10, 7)
 
 mesh_path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/DomainWithHoleFine.csv" 
 
-#also try Mesh_files/AirfoilFine to see the Flow around an airfoil
+#mesh_path = r"C:\Users\brunn\Documents\GitHub\FEMPy\Mesh_files/AirfoilFine.csv"
+#also try Mesh_files/AirfoilFine.csv to see the Flow around an airfoil
 
 p_unitsquare = CSVToMesh(mesh_path)
 
@@ -39,6 +40,8 @@ hull = p_unitsquare[2]
 
 Inlet = BoundaryFacetsInRectangle(-1,0.01,-2,2, points, hull)
 Outlet = BoundaryFacetsInRectangle(0.99,1.1,-2,2, points, hull)
+
+
 
 ############################## parameters #####################################
 
@@ -58,6 +61,7 @@ Cauchy_BC = BC.CauchyBoundaryCondition(len(points))
 
 Cauchy_BC.add_cauchy_facets(Inlet, 0,1)
 Cauchy_BC.add_cauchy_facets(Outlet, 0,-1)
+
 
 ############################### functions #####################################
 
@@ -86,7 +90,7 @@ ax.plot_trisurf(triang, z, cmap = "magma")
 ax.view_init(30, -50)
 plt.show()
 
-plot_streamline(solution[0],solution[1], solution[2])
+plot_streamline(solution[0],solution[1], solution[2], option="circle", bernoulli=True) 
 
 
 

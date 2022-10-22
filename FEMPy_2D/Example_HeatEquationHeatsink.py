@@ -82,7 +82,7 @@ z = sol
     
 fig, ax = plt.subplots(subplot_kw =dict(projection="3d"))
 ax.plot_trisurf(triang, z, cmap = "magma")
-ax.view_init(30, -50)
+ax.view_init(30, 50)
 plt.show()
 
 #plot_streamline(solution[0],solution[1], solution[2])

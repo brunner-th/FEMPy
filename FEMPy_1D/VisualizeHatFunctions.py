@@ -52,6 +52,8 @@ def drawBasisFunction(ind_list, col="k", solution = True):
             y_interval = np.linspace(0,1,20)
             
         
+        
+        
         plt.plot(x_interval, y_interval, linestyle = "--", color = col, linewidth = 1.3)
         
 plt.title("Linear Basis Functions")
